@@ -374,37 +374,6 @@ namespace IntuneGroupAssignments
                     );
                 await pageIterator.IterateAsync();
             }
-            /*
-            foreach (var a in policyConfigs.Value)
-            {
-                Configuration Config = new Configuration();
-                Config.Id = a.Id;
-                Config.DisplayName = a.Name;
-                Config.ModifiedDate = DateTime.ParseExact(a.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
-
-                var configAssignments = await betaClient.DeviceManagement.ConfigurationPolicies[$"{(a.Id)}"].Assignments.GetAsync();
-                if (configAssignments.Value != null)
-                {
-                    foreach (var item in configAssignments.Value)
-                    {
-
-                        Assignment assignment = new Assignment();
-                        assignment.GroupID = item.Id.Substring(item.Id.IndexOf('_') + 1);
-                        if (a.Id == "d419fe89-ff41-4acd-b847-fc7e9d817311")
-                        {
-                            Console.WriteLine("Do Nothing");
-                        }
-                        Config.Assignments.Add(assignment);
-
-                    }
-                }
-
-             
-
-                configurations.Add(Config);
-            }
-            */
-
 
         }
 
@@ -417,8 +386,6 @@ namespace IntuneGroupAssignments
                 try
                 {
                     await App.PublicClientApp.RemoveAsync(accounts.FirstOrDefault());
-                    this.ResultText.Text = "User has signed-out";
-                    this.CallGraphButton.Visibility = Visibility.Visible;
                     this.SignOutButton.Visibility = Visibility.Collapsed;
                 }
                 catch (MsalException ex)
@@ -475,7 +442,6 @@ namespace IntuneGroupAssignments
                     PoliciesList.ItemsSource = null;
 
                     gifSearch.Visibility = Visibility.Visible;
-                    txtProgress.Text = "Loading...";
 
                     Microsoft.Graph.Models.Group groupInfo = await GetGroupInfo(httpClient, searchGroup);
                     
@@ -492,8 +458,6 @@ namespace IntuneGroupAssignments
                     PoliciesList.ItemsSource = policies.Where(a => a.Assignments.Any(b => b.GroupID == $"{groupInfo.Id}")).ToList();
 
                     gifSearch.Visibility = Visibility.Hidden;
-                    txtProgress.Text = "Loading...Complete";
-
                 }
                 else
                 {
@@ -503,7 +467,7 @@ namespace IntuneGroupAssignments
                     this.SignOutButton.Visibility = Visibility.Visible;
                     Microsoft.Graph.Models.Group groupInfo = null;
                     gifSearch.Visibility = Visibility.Visible;
-                    txtProgress.Text = "Loading...";
+
                     try { groupInfo = await GetGroupInfo(httpClient, searchGroup); }
                     catch (Exception ex)
                     {
@@ -568,7 +532,6 @@ namespace IntuneGroupAssignments
                     await Task.WhenAll(tasks);
 
                     gifSearch.Visibility = Visibility.Hidden;
-                    txtProgress.Text = "Loading...Complete";
                 }
             }
         }

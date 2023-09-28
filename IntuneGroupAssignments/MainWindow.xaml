@@ -29,10 +29,8 @@
                         <Image Name="gifSearch" Grid.Column="3" Height="30" Visibility="Hidden" HorizontalAlignment="left" gif:ImageBehavior.AnimatedSource="/loading_spinner.gif" />
                     </Grid>
 
-                    <Button Grid.Column="1" IsEnabled="False" x:Name="CallGraphButton" Content="Update Data" Visibility="Collapsed" HorizontalAlignment="Right" Padding="5" Click="CallGraphButton_Click" FontFamily="Segoe Ui"/>
                     <Button Grid.Column="1" x:Name="SignOutButton" Content="Sign-Out" HorizontalAlignment="Right" Padding="5" Click="SignOutButton_Click" Visibility="Collapsed" FontFamily="Segoe Ui"/>
                     <Button Grid.Column="1" Name="btnSettings" Content="Settings" HorizontalAlignment="Right" Padding="5" Click="btnSettings_Click" FontFamily="Segoe Ui" />
-                    <TextBox Grid.Column="1" Name="txtProgress" Visibility="Collapsed" IsEnabled="False" HorizontalAlignment="Right" Margin="6,0,0,0" TextWrapping="Wrap" Text="" Width="200" VerticalContentAlignment="Center"/>
 
                 </Grid>
                 <Label Content="Group Info" />
