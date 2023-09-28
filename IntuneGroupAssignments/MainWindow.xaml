@@ -1,0 +1,303 @@
+﻿<Window x:Class="IntuneGroupAssignments.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IntuneGroupAssignments"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
+        mc:Ignorable="d"
+        Title="ADAM Tool" Height="700" Width="1030" ResizeMode="NoResize">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0 0 0 0">
+            <StackPanel CanVerticallyScroll="True">
+                <Grid Margin="5 5 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="400" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="205" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Enter Group Name: " Width="100" HorizontalAlignment="Left"/>
+                        <TextBox Grid.Column="1" Name="txtGroupName" Width="200" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
+                        <Button Grid.Column="2" Name="btnSearchGroup" Content="Group Lookup" Margin="5 0 20 0" Padding="5" Width="100" Click="btnSearchGroup_Click"/>
+                        <Image Name="gifSearch" Grid.Column="3" Height="30" Visibility="Hidden" HorizontalAlignment="left" gif:ImageBehavior.AnimatedSource="/loading_spinner.gif" />
+                    </Grid>
+
+                    <Button Grid.Column="1" IsEnabled="False" x:Name="CallGraphButton" Content="Update Data" Visibility="Collapsed" HorizontalAlignment="Right" Padding="5" Click="CallGraphButton_Click" FontFamily="Segoe Ui"/>
+                    <Button Grid.Column="1" x:Name="SignOutButton" Content="Sign-Out" HorizontalAlignment="Right" Padding="5" Click="SignOutButton_Click" Visibility="Collapsed" FontFamily="Segoe Ui"/>
+                    <Button Grid.Column="1" Name="btnSettings" Content="Settings" HorizontalAlignment="Right" Padding="5" Click="btnSettings_Click" FontFamily="Segoe Ui" />
+                    <TextBox Grid.Column="1" Name="txtProgress" Visibility="Collapsed" IsEnabled="False" HorizontalAlignment="Right" Margin="6,0,0,0" TextWrapping="Wrap" Text="" Width="200" VerticalContentAlignment="Center"/>
+
+                </Grid>
+                <Label Content="Group Info" />
+                <Border CornerRadius="5" BorderBrush="Black" BorderThickness="1" Padding="5" Margin="5">
+                    <WrapPanel Width="1000" HorizontalAlignment="Left">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="300" />
+                                <ColumnDefinition Width="75" />
+                                <ColumnDefinition Width="400" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition Height="50" />
+                                <RowDefinition Height="100" />
+                            </Grid.RowDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Group Name: " Margin="0 0 0 10" HorizontalAlignment="Right" Height="25"/>
+                            <TextBox Grid.Column="1" IsReadOnly="True" Grid.Row="0" Text="" Name="txtGroupInfoName" Margin="0 0 0 10" HorizontalAlignment="Center" VerticalContentAlignment="Center" Height="25" Width="300"/>
+                            <Label Grid.Column="2" Grid.Row="0" Content="Group Id: " Margin="0 0 0 10" HorizontalAlignment="Right" Height="25"/>
+                            <TextBox Grid.Column="3" IsReadOnly="True" Grid.Row="0" Text="" Name="txtGroupInfoId" Margin="0 0 0 10" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="25" Width="400"/>
+                            <Label Grid.Column="0" Grid.Row="1" Content="Type: " Margin="0 0 0 10" HorizontalAlignment="Right" Height="25"/>
+                            <TextBox Grid.Column="1" IsReadOnly="True" Grid.Row="1" Text="" Name="txtGroupInfoType" Margin="0 0 0 10" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="25" Width="300"/>
+                            <Label Grid.Column="2" Grid.Row="1" Content="Rule: " Margin="0 0 0 10" HorizontalAlignment="Right" Height="25" />
+                            <TextBox Grid.Column="3" IsReadOnly="True" Grid.Row="1" Text="" Name="txtGroupInfoRule" Margin="0 0 0 10" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="25" Width="400"/>
+                            <Label Grid.Column="0" Grid.Row="2" Content="Devices:" HorizontalAlignment="Right"/>
+                            <ListBox Name="DevicesList" Grid.Row="2" Grid.Column="1">
+                                <ListBox.Template>
+                                    <ControlTemplate>
+                                        <DockPanel LastChildFill="True" Background="#FF2F4188">
+                                            <Grid DockPanel.Dock="Top" Height="30">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="250"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Grid.Column="0" Grid.Row="1" Foreground="White">Device Name</Label>
+                                            </Grid>
+                                            <ScrollViewer>
+                                                <ItemsPresenter></ItemsPresenter>
+                                            </ScrollViewer>
+                                        </DockPanel>
+                                    </ControlTemplate>
+                                </ListBox.Template>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0">
+                                    <Run Foreground="White" Text="{Binding DisplayName}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </WrapPanel>
+                </Border>
+                <Label Content="API Call Results" Margin="0,0,0,-5" FontFamily="Segoe Ui" Visibility="Collapsed"/>
+                <TextBox x:Name="ResultText" TextWrapping="Wrap" MinHeight="120" Margin="5" FontFamily="Segoe Ui" Visibility="Collapsed"/>
+                <Label Content="Token Info" Margin="0,0,0,-5" FontFamily="Segoe Ui" Visibility="Collapsed" />
+                <TextBox x:Name="TokenInfoText" TextWrapping="Wrap" MinHeight="70" Margin="5" FontFamily="Segoe Ui" Visibility="Collapsed"/>
+                <StackPanel Orientation="Horizontal" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="500" />
+                            <ColumnDefinition Width="500" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition MinHeight="100" />
+                            <RowDefinition Height="30"/>
+                            <RowDefinition MinHeight="100" />
+                            <RowDefinition Height="30"/>
+                            <RowDefinition MinHeight="100" />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Column="0" Grid.Row="0" Content="Applications" FontFamily="Segoe Ui" />
+                        <ListBox Grid.Column="0" Grid.Row="1" Name="ApplicationList" Background="#FF2F4188" Margin="5" Width="500" HorizontalAlignment="Left" MinHeight="300" MaxHeight="200" VerticalAlignment="Top" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.Template>
+                                <ControlTemplate>
+                                    <DockPanel LastChildFill="True" Background="#FF2F4188">
+                                        <Grid DockPanel.Dock="Top" Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="75"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" Grid.Row="1" Foreground="White">App Name</Label>
+                                            <Label Grid.Column="1" Grid.Row="1" Foreground="White">Intent</Label>
+                                            <Label Grid.Column="2" Grid.Row="1" Foreground="White">Modified Date</Label>
+                                        </Grid>
+                                        <ScrollViewer>
+                                            <ItemsPresenter></ItemsPresenter>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="250" />
+                                            <ColumnDefinition Width="75" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">
+                                    <Run Foreground="White" Text="{Binding DisplayName}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1">
+                                    <Run Foreground="White" Text="{Binding Intent}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="2">
+                                    <Run Foreground="White" Text="{Binding ModifiedDate}"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Label Grid.Column="1" Grid.Row="0" Content="Configurations" FontFamily="Segoe Ui" />
+                        <ListBox Grid.Column="1" Grid.Row="1" Name="ConfigurationList" Background="#FF2F4188" Margin="5" Width="500" HorizontalAlignment="Left" Height="300" VerticalAlignment="Top">
+                            <ListBox.Template>
+                                <ControlTemplate>
+                                    <DockPanel LastChildFill="True" Background="#FF2F4188">
+                                        <Grid DockPanel.Dock="Top" Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="300"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" Grid.Row="1" Foreground="White">Profile Name</Label>
+                                            <Label Grid.Column="1" Grid.Row="1" Foreground="White">Modified Date</Label>
+                                        </Grid>
+                                        <ScrollViewer>
+                                            <ItemsPresenter></ItemsPresenter>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="300" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">
+                <Run Foreground="White" Text="{Binding DisplayName}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1">
+                <Run Foreground="White" Text="{Binding ModifiedDate}"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Label Grid.Column="0" Grid.Row="2" Content="Remediations" FontFamily="Segoe Ui" />
+                        <ListBox Grid.Column="0" Grid.Row="3" Name="RemediationList" Background="#FF2F4188" Margin="5" Width="500" HorizontalAlignment="Left" Height="300" VerticalAlignment="Top">
+                            <ListBox.Template>
+                                <ControlTemplate>
+                                    <DockPanel LastChildFill="True" Background="#FF2F4188">
+                                        <Grid DockPanel.Dock="Top" Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="300"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" Grid.Row="1" Foreground="White">Profile Name</Label>
+                                            <Label Grid.Column="1" Grid.Row="1" Foreground="White">Modified Date</Label>
+                                        </Grid>
+                                        <ScrollViewer>
+                                            <ItemsPresenter></ItemsPresenter>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="300" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">
+<Run Foreground="White" Text="{Binding DisplayName}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1">
+<Run Foreground="White" Text="{Binding ModifiedDate}"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Label Grid.Column="1" Grid.Row="2" Content="Scripts" FontFamily="Segoe Ui" />
+                        <ListBox Grid.Column="1" Grid.Row="3" Name="ScriptsList" Background="#FF2F4188" Margin="5" Width="500" HorizontalAlignment="Left" Height="300" VerticalAlignment="Top">
+                            <ListBox.Template>
+                                <ControlTemplate>
+                                    <DockPanel LastChildFill="True" Background="#FF2F4188">
+                                        <Grid DockPanel.Dock="Top" Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="300"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" Grid.Row="1" Foreground="White">Profile Name</Label>
+                                            <Label Grid.Column="1" Grid.Row="1" Foreground="White">Modified Date</Label>
+                                        </Grid>
+                                        <ScrollViewer>
+                                            <ItemsPresenter></ItemsPresenter>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="300" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">
+<Run Foreground="White" Text="{Binding DisplayName}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1">
+<Run Foreground="White" Text="{Binding ModifiedDate}"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Label Grid.Column="0" Grid.Row="4" Content="Policies" FontFamily="Segoe Ui" />
+                        <ListBox Grid.Column="0" Grid.Row="5" Name="PoliciesList" Background="#FF2F4188" Margin="5" Width="500" HorizontalAlignment="Left" Height="300" VerticalAlignment="Top">
+                            <ListBox.Template>
+                                <ControlTemplate>
+                                    <DockPanel LastChildFill="True" Background="#FF2F4188">
+                                        <Grid DockPanel.Dock="Top" Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="300"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" Grid.Row="1" Foreground="White">Profile Name</Label>
+                                            <Label Grid.Column="1" Grid.Row="1" Foreground="White">Modified Date</Label>
+                                        </Grid>
+                                        <ScrollViewer>
+                                            <ItemsPresenter></ItemsPresenter>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="300" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">
+<Run Foreground="White" Text="{Binding DisplayName}"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1">
+<Run Foreground="White" Text="{Binding ModifiedDate}"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

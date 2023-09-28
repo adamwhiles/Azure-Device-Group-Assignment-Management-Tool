@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+	<Version>1.0.6</Version>
+	<ApplicationIcon>2Group_37448.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="Microsoft.Graph" Version="5.28.0" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.49.0-preview" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.56.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.56.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2106-prerelease" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+  </ItemGroup>
+
+    <ItemGroup>
+	    <None Include="appsettings*.json">
+		    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="loading_spinner.gif" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="2Group_37448.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="loading_spinner.gif" />
+    </ItemGroup>
+
+</Project>
