@@ -68,14 +68,14 @@ namespace IntuneGroupAssignments
         {
             devices.Clear();
            
-                var graphClient = new Microsoft.Graph.GraphServiceClient(client);
-                var group = await graphClient.Groups.GetAsync((requestConfiguration) =>
-                {
-                    requestConfiguration.QueryParameters.Filter = $"(displayName eq '{sGroup}')";
-                    requestConfiguration.QueryParameters.Select = new string[] { "id", "displayName", "groupTypes", "membershipRule", "members" };
-                });
-                if (group.Value.Count > 0)
-                {
+            var graphClient = new Microsoft.Graph.GraphServiceClient(client);
+            var group = await graphClient.Groups.GetAsync((requestConfiguration) =>
+            {
+                requestConfiguration.QueryParameters.Filter = $"(displayName eq '{sGroup}')";
+                requestConfiguration.QueryParameters.Select = new string[] { "id", "displayName", "groupTypes", "membershipRule", "members" };
+            });
+            if (group.Value.Count > 0)
+            {
                 var groupMembers = await graphClient.Groups[$"{group.Value[0].Id}"].Members.GetAsync();
                 if (groupMembers.Value.Count > 0)
                 {
@@ -90,11 +90,11 @@ namespace IntuneGroupAssignments
 
                     }
                 }
-                    return group.Value[0];
-                } else
-                {
-                    throw new Exception();
-                }
+                return group.Value[0];
+            } else
+            {
+                throw new Exception();
+            }
             
             
         }
@@ -143,19 +143,20 @@ namespace IntuneGroupAssignments
             var graphClient = new Microsoft.Graph.GraphServiceClient(client);
             var betaClient = new Microsoft.Graph.Beta.GraphServiceClient(client);
 
-            var rems = await betaClient.DeviceManagement.DeviceHealthScripts.GetAsync();
-
-            foreach (var a in rems.Value)
+            var rems = await betaClient.DeviceManagement.DeviceHealthScripts.GetAsync((requestConfiguration) =>
+            {
+                requestConfiguration.QueryParameters.Expand = new string[] { "assignments" };
+            });
+            var tasks = rems.Value.Select(async (rem) =>
             {
                 Remediation remediation = new Remediation();
-                remediation.Id = a.Id;
-                remediation.DisplayName = a.DisplayName;
-                remediation.ModifiedDate = DateTime.ParseExact(a.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
+                remediation.Id = rem.Id;
+                remediation.DisplayName = rem.DisplayName;
+                remediation.ModifiedDate = DateTime.ParseExact(rem.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
 
-                var remAssignments = await betaClient.DeviceManagement.DeviceHealthScripts[$"{(a.Id)}"].Assignments.GetAsync();
-                if (remAssignments.Value != null)
+                if (rem.Assignments != null)
                 {
-                    foreach (var item in remAssignments.Value)
+                    foreach (var item in rem.Assignments)
                     {
                         Assignment assignment = new Assignment();
                         assignment.GroupID = item.Id.Substring(item.Id.IndexOf(':') + 1);
@@ -163,7 +164,8 @@ namespace IntuneGroupAssignments
                     }
                 }
                 remediations.Add(remediation);
-            }
+            });
+            await Task.WhenAll(tasks);
         }
 
         private async Task GetPolicies(HttpClient client)
@@ -284,79 +286,25 @@ namespace IntuneGroupAssignments
             var graphClient = new Microsoft.Graph.GraphServiceClient(client);
             var betaClient = new Microsoft.Graph.Beta.GraphServiceClient(client);
 
-            var configs = await betaClient.DeviceManagement.DeviceConfigurations.GetAsync();
-
-            foreach (var a in configs.Value)
+            var tasks = new Task[]
             {
-                Configuration Config = new Configuration();
-                Config.Id = a.Id;
-                Config.DisplayName = a.DisplayName;
-                Config.ModifiedDate = DateTime.ParseExact(a.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
-
-                
-                var configAssignments = await betaClient.DeviceManagement.DeviceConfigurations[$"{a.Id}"].Assignments.GetAsync();
-                if (configAssignments.Value != null)
+                Task.Run(async () =>
                 {
-                    foreach (var item in configAssignments.Value)
-                    {
-
-                        Assignment assignment = new Assignment();
-                        assignment.GroupID = item.Id.Substring(item.Id.IndexOf('_') + 1);
-                        Config.Assignments.Add(assignment);
-
-                    }
-                }
-
-                configurations.Add(Config);
-            }
-
-            var gpConfigs = await betaClient.DeviceManagement.GroupPolicyConfigurations.GetAsync();
-
-            foreach (var a in gpConfigs.Value)
-            {
-                Configuration Config = new Configuration();
-                Config.Id = a.Id;
-                Config.DisplayName = a.DisplayName;
-                Config.ModifiedDate = DateTime.ParseExact(a.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
-
-                var configAssignments = await betaClient.DeviceManagement.GroupPolicyConfigurations[$"{(a.Id)}"].Assignments.GetAsync();
-                if (configAssignments.Value != null)
-                {
-                    foreach (var item in configAssignments.Value)
-                    {
-
-                            Assignment assignment = new Assignment();
-                            assignment.GroupID = item.Id.Substring(item.Id.IndexOf('_') +1);
-                            Config.Assignments.Add(assignment);
-
-                    }
-                }
-
-                configurations.Add(Config);
-            }
-
-            var policyConfigs = await betaClient.DeviceManagement.ConfigurationPolicies.GetAsync();
-            
-            if (policyConfigs != null)
-            {
-                var pageIterator = PageIterator<DeviceManagementConfigurationPolicy, DeviceManagementConfigurationPolicyCollectionResponse>
-                    .CreatePageIterator(
-                    betaClient,
-                    policyConfigs,
-                    async (p) =>
-                    {
-                        //do something
-                        Configuration Config = new Configuration();
-                        Config.Id = p.Id;
-                        Config.DisplayName = p.Name;
-                        Config.ModifiedDate = DateTime.ParseExact(p.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
-
-                        var configAssignments = await betaClient.DeviceManagement.ConfigurationPolicies[$"{(p.Id)}"].Assignments.GetAsync();
-                        if (configAssignments.Value != null)
+                    var configs = await betaClient.DeviceManagement.DeviceConfigurations.GetAsync((requestConfiguration) =>
                         {
-                            foreach (var item in configAssignments.Value)
-                            {
+                            requestConfiguration.QueryParameters.Expand = new string[] { "assignments" };
+                        });
+                    configs.Value.ForEach(config =>
+                    {
+                        Configuration Config = new Configuration();
+                        Config.Id = config.Id;
+                        Config.DisplayName = config.DisplayName;
+                        Config.ModifiedDate = DateTime.ParseExact(config.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
 
+                        if (config.Assignments != null)
+                        {
+                            foreach (var item in config.Assignments)
+                            {
                                 Assignment assignment = new Assignment();
                                 assignment.GroupID = item.Id.Substring(item.Id.IndexOf('_') + 1);
                                 Config.Assignments.Add(assignment);
@@ -364,17 +312,75 @@ namespace IntuneGroupAssignments
                             }
                         }
                         configurations.Add(Config);
+                    });
+                 
+                }),
+
+                Task.Run(async () =>
+                {
+                    var configs = await betaClient.DeviceManagement.GroupPolicyConfigurations.GetAsync((requestConfiguration) =>
+                        {
+                            requestConfiguration.QueryParameters.Expand = new string[] { "assignments" };
+                        });
+                    configs.Value.Select(async config =>
+                    {
+                        Configuration Config = new Configuration();
+                        Config.Id = config.Id;
+                        Config.DisplayName = config.DisplayName;
+                        Config.ModifiedDate = DateTime.ParseExact(config.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
+
+                        if (config.Assignments != null)
+                        {
+                            foreach (var item in config.Assignments)
+                            {
+                                Assignment assignment = new Assignment();
+                                assignment.GroupID = item.Id.Substring(item.Id.IndexOf('_') + 1);
+                                Config.Assignments.Add(assignment);
+
+                            }
+                        }
+                        configurations.Add(Config);
+                    });
+                }),
+
+                Task.Run(async () =>
+                {
+                    var configs = await betaClient.DeviceManagement.ConfigurationPolicies.GetAsync((requestConfiguration) =>
+                        {
+                            requestConfiguration.QueryParameters.Expand = new string[] { "assignments" };
+                        });
+                    var pageIterator = PageIterator<DeviceManagementConfigurationPolicy, DeviceManagementConfigurationPolicyCollectionResponse>
+                    .CreatePageIterator(
+                    betaClient,
+                    configs,
+                    async (config) =>
+                    {
+                        Configuration Config = new Configuration();
+                        Config.Id = config.Id;
+                        Config.DisplayName = config.Name;
+                        Config.ModifiedDate = DateTime.ParseExact(config.LastModifiedDateTime.ToString(), "M/d/yyyy h:mm:ss tt zzz", System.Globalization.CultureInfo.InvariantCulture).ToString();
+
+                        if (config.Assignments != null)
+                        {
+                            foreach (var item in config.Assignments)
+                            {
+                                Assignment assignment = new Assignment();
+                                assignment.GroupID = item.Id.Substring(item.Id.IndexOf('_') + 1);
+                                Config.Assignments.Add(assignment);
+                            }
+                        }
+                        configurations.Add(Config);
                         return true;
                     },
                     (req) =>
                     {
-                        //do something
                         return req;
                     }
                     );
                 await pageIterator.IterateAsync();
-            }
-
+                }),
+            };
+            await Task.WhenAll(tasks);
         }
 
         private async void SignOutButton_Click(object sender, RoutedEventArgs e)
@@ -409,21 +415,31 @@ namespace IntuneGroupAssignments
 
 
             var accounts = await app.GetAccountsAsync();
-            var firstAccount = accounts.FirstOrDefault();
+            //var firstAccount = accounts.FirstOrDefault();
 
-           
+            IAccount firstAccount = (await app.GetAccountsAsync()).FirstOrDefault();
+
             try
             {
-                authResult = await app.AcquireTokenInteractive(scopes)
-                    .WithParentActivityOrWindow(new WindowInteropHelper(this).Handle)
-                    .WithPrompt(Prompt.SelectAccount)
-                    .WithPrompt(Prompt.ForceLogin)
+                authResult = await app.AcquireTokenSilent(scopes, firstAccount)
                     .ExecuteAsync();
             }
-            catch (MsalException msalex)
+            catch (MsalUiRequiredException ex)
             {
-                ResultText.Text = $"Error Acquiring Token:{System.Environment.NewLine}{msalex}";
+                try
+                {
+                    authResult = await app.AcquireTokenInteractive(scopes)
+                        .WithParentActivityOrWindow(new WindowInteropHelper(this).Handle)
+                        .WithPrompt(Prompt.SelectAccount)
+                        .WithPrompt(Prompt.ForceLogin)
+                        .ExecuteAsync();
+                }
+                catch (MsalException msalex)
+                {
+                    ResultText.Text = $"Error Acquiring Token:{System.Environment.NewLine}{msalex}";
+                }
             }
+            
             
 
             if (authResult != null)
