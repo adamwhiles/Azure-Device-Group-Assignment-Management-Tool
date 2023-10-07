@@ -51,7 +51,7 @@ namespace IntuneGroupAssignments
 
 
         //Set the scope for API call to user.read
-        string[] scopes = new string[] { "user.read" };
+        string[] scopes = new string[] { "user.read", "group.read.all", "groupmember.read.all", "devicemanagementapps.read.all", "devicemanagementconfiguration.read.all" };
         List<AZDevice> devices = new List<AZDevice>();
         List<Application> applications = new List<Application>();
         List<Configuration> configurations = new List<Configuration>();
